@@ -1,0 +1,941 @@
+/* General Styles */
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.container {
+  width: 80%;
+  margin: auto;
+  overflow: hidden;
+  padding: 20px;
+}
+
+h1, h2, h3 {
+  color: #444;
+}
+
+a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Logo and Header Background */
+.logo {
+  background-color: #ff4d4d; /* Main red theme */
+  color: #050505;
+  padding: 10px 0;
+  text-align: center;
+  position: relative;
+}
+
+/* FitBlitz Icon Styling */
+.logo h1 {
+  font-size: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f0a0a;
+}
+
+.bold-icon i {
+  color: #f7d204; /* Yellow-gold for contrast */
+  font-size: 1.2em;
+  margin: 0 5px;
+}
+
+/* Profile form styling */
+.profile-form {
+  margin: 20px;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.submit-button, .cancel-button {
+  padding: 10px 20px;
+  margin-top: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: #45a049;
+}
+
+.cancel-button {
+  background-color: #f44336;
+}
+
+.cancel-button:hover {
+  background-color: #d32f2f;
+}
+
+/* BMR and TDEE Report Table */
+.report-table {
+  width: 50%;
+  margin: 20px 0;
+  border-collapse: collapse;
+}
+
+.report-table th, .report-table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+.report-table th {
+  background-color: #f2f2f2;
+}
+
+/* Profile picture styling */
+.profile-header img {
+  border-radius: 50%;
+  max-width: 150px;
+}
+/* User Profile Header Positioning */
+.user-profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+}
+
+.profile-pic-header {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  margin-right: 8px;
+  object-fit: cover;
+}
+
+.username {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+}
+
+
+/* Navigation Styles */
+.nav-horizontal {
+  background-color: #333;
+  padding: 10px 0;
+}
+
+.nav-horizontal ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.nav-horizontal ul li {
+  display: inline;
+  margin: 0 10px;
+}
+
+.nav-horizontal ul li a {
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Form Styles */
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+form {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+}
+
+input[type="text"], input[type="password"], textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+}
+
+input[type="submit"] {
+  background-color: #ff4d4d;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  width: 100%;
+}
+
+input[type="submit"]:hover {
+  background-color: #ff3333;
+}
+
+/* Landing Page Styles */
+.hero {
+  background-color: #ff4d4d;
+  color: #fff;
+  text-align: center;
+  padding: 50px 0;
+  border-radius: 20px;
+  margin-bottom: 30px;
+}
+
+.objectives {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.objective {
+  flex-basis: 48%;
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.call-to-action {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 20px;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: #ff4d4d;
+  color: #fff;
+}
+
+.btn-secondary {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Profile and Friends Styles */
+.profile-container {
+  border-radius: 15px;
+  overflow: hidden;
+  padding: 20px;
+  background-color: #f5f5f5; /* Light gray background, adjust as needed */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Optional: adds a subtle shadow */
+}
+
+/* Dropdown styles */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #444;
+  min-width: 160px;
+  top: 100%; /* Position the dropdown directly below the button */
+  left: 0; /* Align it with the left side of the button */
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  border-radius: 5px; /* Adds rounded corners */
+}
+
+.dropdown-content a {
+  color: #fff; /* White text for better contrast */
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: #666; /* Darker background on hover */
+}
+
+.dropdown:hover .dropdown-content {
+  display: block; /* Show the dropdown when hovering */
+}
+
+/* Adjusted the dropbtn style for consistency */
+.dropbtn {
+  background-color: #333;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+
+/* Public and Private Messaging Styles */
+.message-container {
+  background-color: white;
+  color: black;
+  border: 1px solid red;
+  border-radius: 15px;
+  margin: 15px;
+  padding: 15px;
+}
+
+.message-header {
+  font-weight: bold;
+  color: red;
+  font-size: 1.2em;
+}
+
+.message-body {
+  margin-top: 5px;
+  color: black;
+  font-size: 16px;
+}
+
+.message-time {
+  font-size: 12px;
+  color: #555;
+}
+
+.message-public {
+  border: 1px solid black;
+  background-color: #f9f9f9;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.message-private {
+  border: 2px solid black;
+  background-color: #eaeaea;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+/* Notification for new private messages */
+.notification-dot {
+  height: 10px;
+  width: 10px;
+  background-color: red;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+/* Comment Section Styles */
+.comment-container {
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid red;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+}
+
+.comment-header {
+  color: red;
+  font-weight: bold;
+}
+
+.comment-body {
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.comment-time {
+  font-size: 12px;
+  color: #555;
+}
+
+a {
+  color: red;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+
+/* Submit button styles */
+input[type='submit'] {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+input[type='submit']:hover {
+  background-color: red;
+}
+/* General Dark Theme Styles */
+body.dark-theme {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Dark Theme Toggle Button */
+.theme-toggle {
+  position: absolute;
+  left: 20px;
+  top: 10px;
+}
+
+.theme-toggle button {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+/* Exclude Logo from Dark Theme */
+body.dark-theme .logo {
+  background-color: #ff4d4d;
+  color: #fff;
+}
+
+/* Dark Theme Navigation */
+.dark-theme .nav-horizontal {
+  background-color: #444;
+}
+
+.dark-theme a {
+  color: #ff4d4d;
+}
+
+/* Dark Theme for Other Containers */
+.dark-theme .message-container,
+.dark-theme .profile-container,
+.dark-theme .comment-container {
+  background-color: #555;
+  color: #f1f1f1;
+  border-color: #ff4d4d;
+}
+
+.dark-theme input[type="text"],
+.dark-theme input[type="password"],
+.dark-theme textarea {
+  background-color: #444;
+  color: #fff;
+  border: 1px solid #888;
+}
+
+.dark-theme input[type="submit"] {
+  background-color: #ff4d4d;
+  color: #fff;
+}
+
+.dark-theme input[type="submit"]:hover {
+  background-color: #ff3333;
+}
+
+/* Swedish-inspired styling for articles */
+.info-container {
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  margin: auto;
+  max-width: 1200px;
+}
+
+.article-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.article-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.article-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.article-content {
+  padding: 15px;
+}
+
+.article-content h3 {
+  font-size: 1.1em;
+  color: #333;
+}
+
+.article-meta {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.read-more {
+  display: inline-block;
+  margin-top: 10px;
+  color: #ff4d4d;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.read-more:hover {
+  color: #d03c3c;
+}
+
+.no-results {
+  font-size: 1.2em;
+  color: #777;
+}
+
+/* Fun Fact Section Styles */
+.fun-fact-section {
+  background-color: #ff4d4d;
+  color: #333; /* Dark text color for better contrast */
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center-align content */
+  text-align: center; /* Center-align text */
+}
+
+/* Fun Fact Box Styles */
+.fun-fact-box {
+  font-size: 18px;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+
+
+
+/* Search Icon Button */
+.search-btn {
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+}
+
+/* Dark Mode Adjustments */
+.dark-mode .fun-fact-section {
+  background-color: #333; /* Darker background for dark mode */
+  color: white; /* White text in dark mode */
+}
+
+.dark-mode .search-section input[type="text"] {
+  background-color: #555; /* Darker background for search input */
+  color: white; /* White text for search input in dark mode */
+  border-color: #444; /* Dark border */
+}
+/* activity_tracker styles */
+        .workout-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .section-title {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .difficulty-grid, .muscle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .difficulty-card, .muscle-card {
+            background: #f8f9fa;
+            border: 2px solid #b32502;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .difficulty-card:hover, .muscle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .exercise-display {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .exercise-video {
+            max-width: 800px;
+            width: 100%;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .timer-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .timer-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .control-button {
+            background: #ff3300;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .control-button:hover {
+            background: #0056b3;
+        }
+
+        .back-button {
+            background: #6c757d;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .calories-burned {
+            font-size: 2em;
+            color: #28a745;
+            margin: 20px 0;
+        }
+
+        .save-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .save-button:hover {
+            background: #218838;
+        }
+
+        @media (max-width: 768px) {
+            .difficulty-grid, .muscle-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+        /* activity_tracker style */
+        /* Exercise items styling */
+.exercise-item {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  padding: 1em;
+  margin: 10px 0;
+  background-color: #fff;
+  border-radius: 8px;
+  text-align: left;
+  transition: background-color 0.3s ease;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.exercise-item:hover {
+  background-color: #f0f0f0;
+}
+
+.exercise-item h5 {
+  font-size: 1.1em;
+  color: #444;
+  margin-bottom: 0.5em;
+}
+
+.exercise-item img {
+  max-width: 100%;
+  height: auto;
+  margin: 10px 0;
+  border-radius: 5px;
+}
+.exercise-video {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  border: 1px solid #ddd;
+}
+
+/* Minimalist button style */
+button {
+  background: #0366d6; /* Soft blue button */
+  color: #fff;
+  padding: 8px 15px;
+  font-size: 1em;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #0252a2; /* Darker blue on hover */
+}
+
+/* Layout and spacing */
+.category {
+  margin: 2em 0;
+  padding: 20px;
+  background-color: #fafafa; /* Light gray for category container */
+  border-radius: 8px;
+}
+
+p {
+  font-size: 1em;
+  color: #666;
+}
+
+/* Additional styling for minimalism and layout consistency */
+.category h4 {
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 5px;
+  margin-top: 15px;
+}
+#timer {
+  font-size: 18px;
+  color: #333;
+  font-weight: bold;
+}
+/* footer style */
+.site-footer {
+    display: flex; /* Enable flexbox */
+    flex-wrap: wrap; /* Allow wrapping of items */
+    justify-content: space-between; /* Space out items evenly */
+    padding: 20px; /* Add some padding */
+    background-color: #000; /* Black background for footer */
+    color: white; /* White text color */
+}
+
+.footer-section {
+    flex: 1; /* Allow each section to grow equally */
+    text-align: justify;
+    margin: 10px; /* Add margin between sections */
+    min-width: 200px; /* Minimum width for each section */
+}
+
+.footer-section h3 {
+    margin-bottom: 10px; /* Space below the heading */
+    color: #ff4d4d; /* Red color for headings */
+}
+
+.footer-section ul {
+    list-style-type: none; /* Remove default list styles */
+    padding: 0; /* Remove default padding */
+}
+
+.footer-section ul li {
+    margin: 5px 0; /* Space between list items */
+}
+
+.footer-section a {
+    color: white; /* Default link color */
+    text-decoration: none; /* Remove underline from links */
+    transition: color 0.3s; /* Smooth transition for color change */
+}
+
+.footer-section a:hover {
+    color: #ff4d4d; /* Red highlight on hover */
+}
+
+.footer-bottom {
+  display: flex; /* Enable flexbox */
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center items horizontally */
+  justify-content: center; /* Center items vertically (if height is defined) */
+  padding: 10px 0; /* Add padding for spacing */
+  color: #ff4d4d; /* Red color for text */
+  border-top: 1px solid #ff4d4d; /* Optional: Top border for separation */
+  background-color: #000; /* Black background for the footer */
+  width: 100%; /* Full width */
+}
+
+.login-status {
+    margin-top: 10px; /* Space above login status */
+    color: #ff4d4d; /* Red color for login message */
+}
+
+        /* Add some basic styling to the form */
+        form {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+        }
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #3e8e41;
+        }
+        .search-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+        .search-container form {
+            display: flex;
+        }
+        .search-container input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border-right: none;
+            border-radius: 4px 0 0 4px;
+        }
+        .search-container button {
+            border: none;
+            cursor: pointer;
+        }
+        .search-container button:hover {
+            background: #45a049;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .delete-btn:hover {
+            color: #cc0000;
+        }
+     /* Pill toggle styling */
+     .pill-toggle {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+  }
+
+  .pill {
+      background-color: #ff0000; /* Red background */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin: 0 5px;
+      font-size: 16px;
+  }
+
+  .pill.active {
+      background-color: #b30000; /* Darker red for active state */
+  }
+
+  .pill:hover {
+      background-color: #cc0000; /* Lighter red on hover */
+  }
