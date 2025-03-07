@@ -1,0 +1,11 @@
+# environment variables
+.env
+
+# vendor
+vendor/
+
+#JSON files
+*.json
+!composer.lock
+
+

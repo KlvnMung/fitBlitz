@@ -1,77 +1,66 @@
 <?php
 require_once 'header.php';
 
-$error = $user = $pass = $email = '';  // Initialize email
+$error = "";
+$user = "";
+$pass = "";
+$email = "";
+$role = "user";
 
 if (isset($_SESSION['user'])) {
     destroySession();
 }
 
-if (isset($_POST['user'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user = sanitizeString($_POST['user']);
     $pass = sanitizeString($_POST['pass']);
-    $email = sanitizeString($_POST['email']);  // Get the email from the form
-    $role = isset($_POST['role']) && $_POST['role'] === 'admin' ? 'admin' : 'user'; // Role selection
+    $email = sanitizeString($_POST['email']);
+    $role = isset($_POST['role']) && $_POST['role'] === 'admin' ? 'admin' : 'user';
 
-    // Validate inputs
-    if ($user == "" || $pass == "" || $email == "") {
+    if (empty($user) || empty($pass) || empty($email)) {
         $error = "All fields are required!";
     } else {
-        // Check if the email already exists
-        $result = queryMysql($pdo, "SELECT * FROM members WHERE user='$user' OR email='$email'");
-        if ($result->rowCount()) {
+        $stmt = $pdo->prepare("SELECT * FROM members WHERE user = ? OR email = ?");
+        $stmt->execute([$user, $email]);
+        
+        if ($stmt->rowCount() > 0) {
             $error = "That username or email already exists, please choose another one.";
         } else {
-            // Encrypt password
             $hashedPass = password_hash($pass, PASSWORD_BCRYPT);
-
-            // Insert into database
-            queryMysql($pdo, "INSERT INTO members(user, pass, email, role) VALUES ('$user', '$hashedPass', '$email', '$role')");
-            die('<h4>Account created successfully</h4> Please proceed to log in.</div></body></html>');
+            $stmt = $pdo->prepare("INSERT INTO members (user, pass, email, role) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$user, $hashedPass, $email, $role]);
+            echo '<h4>Account created successfully</h4> Please proceed to <a href="login.php">log in</a>.';
+            exit();
         }
     }
 }
-
-echo '<div class="form-container">';
-echo '<form method="post" action="signup.php">';
-if ($error) {
-    echo '<div class="error-message">' . $error . '</div>';
-}
-echo '<h2>Sign Up</h2>';
-echo '<div class="form-group">
-  <label for="username">Username</label>
-  <input type="text" id="username" maxlength="16" name="user" value="' . $user . '" required>
-</div>
-<div class="form-group">
-  <label for="password">Password</label>
-  <input type="password" id="password" maxlength="16" name="pass" value="' . $pass . '" required>
-  <span class="show-password" onclick="showPassword()">Show</span>
-</div>
-<div class="form-group">
-  <label for="email">Email</label>
-  <input type="email" id="email" name="email" value="' . $email . '" required>
-</div>
-<div class="form-group">
-  <label for="role">Role</label>
-  <select id="role" name="role">
-    <option value="user" selected>User</option>
-    <option value="admin">Admin</option>
-  </select>
-</div>
-<div class="form-group">
-  <input type="submit" value="Sign Up">
-</div>';
-echo '</form>';
-echo '</div>';
 ?>
 
-<script>
-function showPassword() {
-    var password = document.getElementById('password');
-    if (password.type === 'password') {
-        password.type = 'text';
-    } else {
-        password.type = 'password';
-    }
-}
-</script>
+<div class="form-container">
+    <form method="post" action="signup.php">
+        <h2>Sign Up</h2>
+        <?php if (!empty($error)) echo "<div class='error-message'>$error</div>"; ?>
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="user" value="<?= htmlspecialchars($user) ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="pass" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="role">Role</label>
+            <select id="role" name="role">
+                <option value="user" <?= $role === 'user' ? 'selected' : '' ?>>User</option>
+                <option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>Admin</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Sign Up">
+        </div>
+    </form>
+</div>

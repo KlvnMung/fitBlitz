@@ -7,39 +7,33 @@ error_reporting(E_ALL);
 require_once 'header.php';
 if (!$loggedin) die("Please log in to access this page.");
 
-//  News API key from newsapi.org (free API key) 
+// News API key from newsapi.org (free API key) 
 $newsApiKey = 'fc73954a9dd0430b90a0b925430dc3f5';
 
-// Function to fetch health articles
-function fetchHealthArticles($apiKey, $query = null) {
-    $baseUrl = 'https://newsapi.org/v2/top-headlines?';
+// Function to fetch reputable fitness and nutrition articles
+function fetchReputableFitnessAndNutritionArticles($apiKey, $query = null) {
+    $baseUrl = 'https://newsapi.org/v2/everything?';
     
     $params = array(
-        'category' => 'health',
+        'q' => $query ? $query : '(fitness OR nutrition)',
+        'sources' => 'bbc-news,Harvard-Health,medical-news-today,healthline,mens-health,womens-health,eatright', // Reputable sources
         'language' => 'en',
+        'sortBy' => 'publishedAt', // Ensure fetching new articles daily
         'pageSize' => 12,
         'apiKey' => $apiKey
     );
-    
-    if ($query) {
-        $params['q'] = $query;
-    }
     
     $url = $baseUrl . http_build_query($params);
     
     $options = [
         'http' => [
-            'header' => [
-                'User-Agent: FitBlitz/1.0',
-
-            ],
+            'header' => ['User-Agent: FitBlitz/1.0'],
             'method' => 'GET',
             'ignore_errors' => true
         ]
     ];
     
     $context = stream_context_create($options);
-    
     $response = file_get_contents($url, false, $context);
     
     if ($response === false) {
@@ -57,21 +51,17 @@ function fetchHealthArticles($apiKey, $query = null) {
     return json_decode($response, true);
 }
 
-$result = fetchHealthArticles($newsApiKey, isset($_GET['search']) ? $_GET['search'] : null);
+$result = fetchReputableFitnessAndNutritionArticles($newsApiKey, isset($_GET['search']) ? $_GET['search'] : null);
 
-// Array of health and fitness fun facts
+// Array of fitness and nutrition fun facts
 $funFacts = [
     "Laughing for 10-15 minutes can burn up to 40 calories!",
-    "The human body contains enough iron to make a 3-inch nail.",
-    "Your heart beats about 100,000 times every day!",
     "Drinking water can boost your metabolism by up to 30%.",
     "A single step uses up to 200 muscles in your body.",
     "Your bones are stronger than steel, pound for pound.",
     "20 minutes of physical activity can boost your memory.",
-    "The average person walks the equivalent of 3 times around the world in a lifetime.",
     "Muscle is three times more efficient at burning calories than fat.",
-    "Your body has over 650 muscles!",
-    "We mzee enda ukapige tizi"
+    "Your body has over 650 muscles!"
 ];
 
 // Get random fun fact
@@ -83,7 +73,7 @@ $randomFact = $funFacts[array_rand($funFacts)];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Health Information</title>
+    <title>Fitness & Nutrition Articles</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -98,7 +88,7 @@ $randomFact = $funFacts[array_rand($funFacts)];
 
         <!-- Search Section -->
         <div class="search-section">
-            <h2>Search Health & Fitness Articles</h2>
+            <h2>Search Fitness & Nutrition Articles</h2>
             <form method="GET" action="information.php" class="search-form">
                 <input type="text" name="search" placeholder="Search health topics..." 
                        value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
@@ -141,19 +131,12 @@ $randomFact = $funFacts[array_rand($funFacts)];
             ?>
         </div>
     </div>
-    <script>
-        // JavaScript for toggling dark mode (if not already included)
-const toggleButton = document.getElementById('theme-toggle');  // assuming you have an element to toggle theme
-const bodyElement = document.body;
-
-toggleButton.addEventListener('click', () => {
-    bodyElement.classList.toggle('dark-mode');
-});
-
-    </script>
+</body>
+</html>
 
 <?php
 require_once 'footer.php';
 ?>
-</body>
-</html>
+
+'sources' => 'bbc-news,Harvard-Health,medical-news-today,healthline,mens-health,womens-health,eatright', // Reputable sources
+        'language' => 'en',

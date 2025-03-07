@@ -1,110 +1,106 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
+// session_start();
 require_once "header.php";
 
-// Check if user is logged in
+// Ensure user is logged in
 if (!isset($_SESSION['user'])) {
-    // Redirect to login page if not logged in
     header("Location: login.php");
     exit();
 }
 
+$user = $_SESSION['user'];
 
-// Display the user's profile if a specific user is selected
-if (isset($_GET['view'])) {
-    $view = sanitizeString($_GET['view']);
-
-    if ($view == $user) {
-        $name = "your";
-    } else {
-        $name = $view;
-    }
-
-    echo "<div class='members-container'>";
-echo "<h3>Members</h3>";
-
-    // echo "<h3>$name's profile</h3>";
-    // showProfile($pdo, $view); // Uncomment this once the function is working
-
-    //echo "<a href='messages.php?view=$view&r=$randstr'>View $name's messages</a>";
-    
-    
-}
 
 // Handle follow request
 if (isset($_GET['add'])) {
     $add = sanitizeString($_GET['add']);
-    
+
     // Check if user is already followed
-    $result = queryMysql($pdo, "SELECT * FROM friends WHERE user = ? AND friend = ?", [$add, $user]);
-    
-    if ($result && $result->rowCount() == 0) {
-        // Add the user to friends if not followed yet
-        queryMysql($pdo, "INSERT INTO friends (user, friend) VALUES (?, ?)", [$add, $user]);
+    $stmt = $pdo->prepare("SELECT * FROM friends WHERE user = ? AND friend = ?");
+    $stmt->execute([$user, $add]);
+
+    if ($stmt->rowCount() == 0) {
+        // Add friend
+        $stmt = $pdo->prepare("INSERT INTO friends (user, friend) VALUES (?, ?)");
+        $stmt->execute([$user, $add]);
     }
+
+    // Redirect to refresh the page and show the updated status
+    header("Location: members.php");
+    exit();
 }
 
 // Handle unfollow request
 if (isset($_GET['remove'])) {
     $remove = sanitizeString($_GET['remove']);
-    
-    // Remove the user from friends
-    queryMysql($pdo, "DELETE FROM friends WHERE user = ? AND friend = ?", [$remove, $user]);
+
+    $stmt = $pdo->prepare("DELETE FROM friends WHERE user = ? AND friend = ?");
+    $stmt->execute([$user, $remove]);
+
+    // Redirect to refresh the page
+    header("Location: members.php");
+    exit();
 }
 
-// Fetch and display all members
-$result = queryMysql($pdo, "SELECT user FROM members ORDER BY user");
+// Fetch members list
+$stmt = $pdo->query("SELECT user FROM members ORDER BY user");
 
-if ($result) {
-    $num = $result->rowCount();
-
-    echo "<ul>";
-    if ($num > 0) {
-        while ($row = $result->fetch()) {
-            if ($row['user'] == $user) continue; // Skip current user
-            
-            $username = htmlspecialchars($row['user']);
-            echo "<li><a href='members.php?view=$username&r=$randstr'>$username</a>";
-
-            // Check if current user is following this member
-            $result1 = queryMysql($pdo, "SELECT * FROM friends WHERE user = ? AND friend = ?", [$username, $user]);
-            $t1 = $result1 ? $result1->rowCount() : 0;
-
-            // Check if this member is following the current user
-            $result2 = queryMysql($pdo, "SELECT * FROM friends WHERE user = ? AND friend = ?", [$user, $username]);
-            $t2 = $result2 ? $result2->rowCount() : 0;
-
-            $follow = "Follow";
-
-            // Display the follow status
-            if ($t1 + $t2 > 0) {
-                echo " &harr; Mutual friends";
-            } elseif ($t1) {
-                echo " &larr; You are following";
-            } elseif ($t2) {
-                echo " &rarr; Is following you";
-                $follow = "Reciprocate";
-            }
-
-            // Follow or unfollow link
-            if ($t1 == 0) {
-                echo " <a href='members.php?add=$username&r=$randstr'>$follow</a>";
-            } else {
-                echo " <a href='members.php?remove=$username&r=$randstr'>Unfollow</a>";
-            }
-
-            echo "</li>";
-        }
-    } else {
-        echo "<li>No members found.</li>";
-    }
-    echo "</ul>";
-} else {
-    echo "Error fetching members list.";
-}
-
-echo "</div>";
-require_once 'footer.php';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="members-container">
+        <h3>Members</h3>
+        <ul>
+            <?php
+            while ($row = $stmt->fetch()) {
+                $username = htmlspecialchars($row['user']);
+                if ($username == $user) continue; // Skip current user
+
+                echo "<li><a href='profile.php?view=$username'>$username</a>";
+
+                // Check follow status
+                $stmt1 = $pdo->prepare("SELECT * FROM friends WHERE user = ? AND friend = ?");
+                $stmt1->execute([$user, $username]);
+                $following = $stmt1->rowCount();
+
+                $stmt2 = $pdo->prepare("SELECT * FROM friends WHERE user = ? AND friend = ?");
+                $stmt2->execute([$username, $user]);
+                $follower = $stmt2->rowCount();
+
+                if ($following && $follower) {
+                    echo " &harr; Mutual friends";
+                } elseif ($following) {
+                    echo " &larr; You are following";
+                } elseif ($follower) {
+                    echo " &rarr; Is following you";
+                }
+
+                // Display follow/unfollow button
+                if (!$following) {
+                    echo " <a href='members.php?add=$username' class='follow-btn'>Follow</a>";
+                } else {
+                    echo " <a href='members.php?remove=$username' class='unfollow-btn'>Unfollow</a>";
+                }
+
+                echo "</li>";
+            }
+            ?>
+        </ul>
+    </div>
+    <script>
+        // Optional: Add AJAX for instant updates (if needed)
+    </script>
+        <?php
+    require_once 'footer.php';
+    ?>
+</body>
+</html>

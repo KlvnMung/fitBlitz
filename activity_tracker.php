@@ -1,52 +1,16 @@
 <?php
 include_once "header.php";
+include_once "function.php"; // Include functions from the functions.php file
 
-
-
-// Rapid API configuration
-$apiKey = 'bbc5062a7amsh4ea157c3fb100d1p1d17ccjsn9472e7cbb6d7';
+// Load API Key from .env file
+$dotenv = parse_ini_file('.env');
+$apiKey = $dotenv['RAPID_API_KEY'];
 $apiUrl = 'https://exercisedb.p.rapidapi.com/exercises?limit=50&offset=0';
 
-// Context for HTTP request
-$options = [
-    'http' => [
-        'header' => [
-            "x-rapidapi-host: exercisedb.p.rapidapi.com", 
-            "x-rapidapi-key: $apiKey"
-        ],
-        'method' => 'GET',
-    ],
-];
+// Fetch API Data
+$exercises = fetchExercisesFromAPI($apiUrl, $apiKey);
 
-// Create a stream with the header
-$context = stream_context_create($options);
-$response = @file_get_contents($apiUrl, false, $context);
-
-if ($response === false) {
-    $error = error_get_last();
-    displayError("Network Error: Unable to fetch data from the API. Please check your internet connection.", 'network');
-    if (isset($http_response_header)) {
-        displayError("HTTP Response Header: " . implode(", ", $http_response_header), 'network');
-    }
-} else {
-    $exercises = json_decode($response, true);
-
-    if (json_last_error() === JSON_ERROR_NONE && !empty($exercises)) {
-        foreach ($exercises as $exercise) {
-            if (isset($exercise['target'], $exercise['equipment'])) {
-                $equipmentType = strtolower($exercise['equipment']);
-                
-                if (in_array($equipmentType, ['machine', 'cable', 'smith machine'])) {
-                    $groupedExercises['machine'][$exercise['target']][] = $exercise;
-                } else {
-                    $groupedExercises['non-machine'][$exercise['target']][] = $exercise;
-                }
-            }
-        }
-    } else {
-        displayError("Error decoding JSON response from API. Please try again later.", 'general');
-    }
-}
+$groupedExercises = categorizeExercises($exercises);
 ?>
 
 <!DOCTYPE html>
@@ -55,16 +19,66 @@ if ($response === false) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activity Tracker</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Activity Tracker</h1>
+
+    <div>
+        <h2>Machine Exercises</h2>
+        <?php foreach ($groupedExercises['machine'] as $muscle => $exercises): ?>
+            <button onclick="toggleExercises('machine', '<?= htmlspecialchars($muscle) ?>')">
+                <?= htmlspecialchars($muscle) ?> Exercises
+            </button>
+            <?php foreach ($exercises as $index => $exercise): ?>
+                <?php $caloriesPerSecond = $exercise['calories_burned_per_sec'] ?? 0.1; ?>
+                <div class="exercise-item" data-type="machine" data-muscle="<?= htmlspecialchars($muscle) ?>" style="display: none;">
+                    <h5><?= htmlspecialchars($exercise['name']) ?></h5>
+                    <img src="<?= htmlspecialchars($exercise['gifUrl']) ?>" alt="<?= htmlspecialchars($exercise['name']) ?>" class="exercise-video" loading="lazy">
+                    <p>Equipment: <?= htmlspecialchars($exercise['equipment']) ?></p>
+                    <button onclick="startTimer(<?= $index ?>, <?= $caloriesPerSecond ?>)">Start Timer</button>
+                    <button onclick="stopTimer(<?= $index ?>)">Pause Timer</button>
+                    <div id="timer-<?= $index ?>">Time: 0s</div>
+                    <button onclick="finishExercise(<?= $index ?>)">Finish Exercise</button>
+                </div>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+    </div>
+
+    <div>
+        <h2>Non-Machine Exercises</h2>
+        <?php foreach ($groupedExercises['non-machine'] as $muscle => $exercises): ?>
+            <button onclick="toggleExercises('non-machine', '<?= htmlspecialchars($muscle) ?>')">
+                <?= htmlspecialchars($muscle) ?> Exercises
+            </button>
+            <?php foreach ($exercises as $index => $exercise): ?>
+                <?php $caloriesPerSecond = $exercise['calories_burned_per_sec'] ?? 0.1; ?>
+                <div class="exercise-item" data-type="non-machine" data-muscle="<?= htmlspecialchars($muscle) ?>" style="display: none;">
+                    <h5><?= htmlspecialchars($exercise['name']) ?></h5>
+                    <img src="<?= htmlspecialchars($exercise['gifUrl']) ?>" alt="<?= htmlspecialchars($exercise['name']) ?>" class="exercise-video" loading="lazy">
+                    <p>Equipment: <?= htmlspecialchars($exercise['equipment']) ?></p>
+                    <button onclick="startTimer(<?= $index ?>, <?= $caloriesPerSecond ?>)">Start Timer</button>
+                    <button onclick="stopTimer(<?= $index ?>)">Pause Timer</button>
+                    <div id="timer-<?= $index ?>">Time: 0s</div>
+                    <button onclick="finishExercise(<?= $index ?>)">Finish Exercise</button>
+                </div>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+    </div>
+
+    <button onclick="calculateTotalCalories()">Show Total Calories Burned</button>
+
     <script>
         const timers = {};
         const caloriesBurnedData = {};
-        const restDuration = 30; // 30 seconds rest period
-        const exerciseDuration = 60; // 60 seconds per exercise set
+        const restDuration = 30; 
+        const exerciseDuration = 60; 
 
         function toggleExercises(type, muscle) {
             const exercises = document.querySelectorAll(`.exercise-item[data-type='${type}'][data-muscle='${muscle}']`);
-            exercises.forEach(exercise => exercise.style.display = exercise.style.display === 'block' ? 'none' : 'block');
+            exercises.forEach(exercise => {
+                exercise.style.display = exercise.style.display === 'block' ? 'none' : 'block';
+            });
         }
 
         function startTimer(exerciseId, caloriesPerSecond = 0.1) {
@@ -120,50 +134,5 @@ if ($response === false) {
             alert(`Total Calories Burned: ${Math.round(totalCalories)}`);
         }
     </script>
-</head>
-<body>
-    <h1>Activity Tracker</h1>
-
-    <!-- Machine Exercises Section -->
-    <div>
-        <h2>Machine Exercises</h2>
-        <?php foreach ($groupedExercises['machine'] as $muscle => $exercises): ?>
-            <button onclick="toggleExercises('machine', '<?= htmlspecialchars($muscle) ?>')"> <?= htmlspecialchars($muscle) ?> Exercises</button>
-            <?php foreach ($exercises as $index => $exercise): ?>
-                <?php $caloriesPerSecond = isset($exercise['calories_burned_per_sec']) ? $exercise['calories_burned_per_sec'] : 0.1; ?>
-                <div class="exercise-item" data-type="machine" data-muscle="<?= htmlspecialchars($muscle) ?>" style="display: none;">
-                    <h5><?= htmlspecialchars($exercise['name']) ?></h5>
-                    <img src="<?= htmlspecialchars($exercise['gifUrl']) ?>" alt="<?= htmlspecialchars($exercise['name']) ?>" class="exercise-video" loading="lazy">
-                    <p>Equipment: <?= htmlspecialchars($exercise['equipment']) ?></p>
-                    <button onclick="startTimer(<?= $index ?>, <?= $caloriesPerSecond ?>)">Start Timer</button>
-                    <button onclick="stopTimer(<?= $index ?>)">Pause Timer</button>
-                    <div id="timer-<?= $index ?>">Time: 0s</div>
-                    <button onclick="finishExercise(<?= $index ?>)">Finish Exercise</button>
-                </div>
-            <?php endforeach; ?>
-        <?php endforeach; ?>
-    </div>
-
-    <!-- Non-Machine Exercises Section -->
-    <div>
-        <h2>Non-Machine Exercises</h2>
-        <?php foreach ($groupedExercises['non-machine'] as $muscle => $exercises): ?>
-            <button onclick="toggleExercises('non-machine', '<?= htmlspecialchars($muscle) ?>')"><?= htmlspecialchars($muscle) ?> Exercises</button>
-            <?php foreach ($exercises as $index => $exercise): ?>
-                <?php $caloriesPerSecond = isset($exercise['calories_burned_per_sec']) ? $exercise['calories_burned_per_sec'] : 0.1; ?>
-                <div class="exercise-item" data-type="non-machine" data-muscle="<?= htmlspecialchars($muscle) ?>" style="display: none;">
-                    <h5><?= htmlspecialchars($exercise['name']) ?></h5>
-                    <img src="<?= htmlspecialchars($exercise['gifUrl']) ?>" alt="<?= htmlspecialchars($exercise['name']) ?>" class="exercise-video" loading="lazy">
-                    <p>Equipment: <?= htmlspecialchars($exercise['equipment']) ?></p>
-                    <button onclick="startTimer(<?= $index ?>, <?= $caloriesPerSecond ?>)">Start Timer</button>
-                    <button onclick="stopTimer(<?= $index ?>)">Pause Timer</button>
-                    <div id="timer-<?= $index ?>">Time: 0s</div>
-                    <button onclick="finishExercise(<?= $index ?>)">Finish Exercise</button>
-                </div>
-            <?php endforeach; ?>
-        <?php endforeach; ?>
-    </div>
-
-    <button onclick="calculateTotalCalories()">Show Total Calories Burned</button>
 </body>
 </html>

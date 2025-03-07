@@ -11,7 +11,8 @@ if (isset($_POST['text'])) {
     $pm   = 0; // Always set to public (community)
     $time = time();
     if ($text != "") {
-        queryMysql($pdo, "INSERT INTO messages VALUES(NULL, '$user', '$view', '$pm', $time, '$text', 0)");
+        queryMysql($pdo, "INSERT INTO messages VALUES(NULL, '$user', '$view', '$pm', $time, '$text')");
+        
     }
 }
 

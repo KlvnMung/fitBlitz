@@ -1,54 +1,88 @@
 <?php
-$host='localhost';
-$data='fitblitz';
-$user='Admin';
-$pass='fitBlitz';
-$chr='utf8mb4';
-$attr="mysql:host=localhost;dbname=$data;port=3306;charset=$chr";
+// Load .env file manually without external libraries
+function loadEnv($path = __DIR__ . '/.env') {
+    if (!file_exists($path)) {
+        die(".env file not found!");
+    }
 
-$opts =
-  [
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $env = [];
+
+    foreach ($lines as $line) {
+        // Ignore comments and empty lines
+        if (strpos(trim($line), '#') === 0 || empty(trim($line))) {
+            continue;
+        }
+
+        // Ensure the line contains an '='
+        if (strpos($line, '=') === false) {
+            continue; // Skip invalid lines
+        }
+
+        list($key, $value) = explode('=', $line, 2);
+
+        // Ensure $value is set and trim it safely
+        $env[$key] = isset($value) ? trim($value) : '';
+    }
+
+    return $env;
+}
+
+$env = loadEnv();
+
+$host = $env['DB_HOST'] ?? 'localhost';
+$data = $env['DB_NAME'] ?? 'fitblitz';
+$user = $env['DB_USER'] ?? 'root';
+$pass = $env['DB_PASS'] ?? '';
+$chr  = $env['DB_CHARSET'] ?? 'utf8mb4';
+$port = $env['DB_PORT'] ?? '3306';
+
+$attr = "mysql:host=$host;dbname=$data;port=$port;charset=$chr";
+
+$opts = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
-  ];
+];
 
-  //error handling
-  try{
-      $pdo= new PDO($attr,$user,$pass,$opts);
-  }
-  catch (\PDOException $e) {
-  switch ($e->getCode()) {
-      case 1049: // Error code for "Unknown database"
-          echo 'Database not found';
-          break;
-      case 2002: // Error code for "Can't connect to local MySQL server through socket"
-          echo 'Cannot connect to the database server';
-          break;
-      default:
-          echo 'An error occurred: ' . $e->getMessage();
-          break;
-  }
-  }
+try {
+    $pdo = new PDO($attr, $user, $pass, $opts);
+} catch (PDOException $e) {
+    if ($e->getCode() == 1049) { // Database not found
+        echo "Database '$data' not found. Creating it now...<br>";
 
-// Define the createTable function with $pdo as a parameter
+        try {
+            // Connect without specifying the database and create it
+            $pdo = new PDO("mysql:host=$host;port=$port;charset=$chr", $user, $pass, $opts);
+            $pdo->exec("CREATE DATABASE `$data`");
+            echo "Database '$data' created successfully.<br>";
+
+            // Reconnect to the newly created database
+            $pdo = new PDO($attr, $user, $pass, $opts);
+        } catch (PDOException $e) {
+            die("Database creation failed: " . $e->getMessage());
+        }
+    } else {
+        die("Database connection failed: " . $e->getMessage());
+    }
+}
+
 function createTable($pdo, $name, $query)
 {
-    $sanitized_name = sanitizeString($name);
-    $sanitized_query = sanitizeString($query);
-
     try {
-        $stmt = $pdo->prepare("CREATE TABLE IF NOT EXISTS `$sanitized_name` ($sanitized_query)");
+        $sql = "CREATE TABLE IF NOT EXISTS `$name` ($query)";
+        $stmt = $pdo->prepare($sql);
         $stmt->execute();
-
-        if ($stmt->rowCount() > 0) {
-            return "Table created successfully";
-        } else {
-            return "Table creation failed";
-        }
+        echo "Table '$name' checked/created successfully.<br>";
     } catch (PDOException $e) {
-        return "Error creating table: " . $e->getMessage();
+        echo "Error creating table '$name': " . $e->getMessage() . "<br>";
     }
+}
+
+
+function sanitizeString($var)
+{
+    return htmlspecialchars(strip_tags($var));
 }
 
 // Define the queryMysql function with $pdo as a parameter
@@ -56,13 +90,12 @@ function queryMysql($pdo, $query, $params = []) {
     try {
         $stmt = $pdo->prepare($query);
         $stmt->execute($params);
-        return $stmt; // Return PDOStatement
+        return $stmt;
     } catch (PDOException $e) {
-        // Log or display error
-        error_log("Database Error: " . $e->getMessage());
-        return false;
+        die("Database Error: " . $e->getMessage());  // Debugging output
     }
 }
+
 
 // Define the destroySession function
 function destroySession()
@@ -73,14 +106,6 @@ function destroySession()
       setcookie(session_name(), '', time()-2592000, '/');
 
     session_destroy();
-}
-
-// Define the sanitizeString function
-function sanitizeString($var)
-{
-    $var = strip_tags($var);
-    $var = htmlentities($var);
-    return $var;
 }
 
 // Define the showProfile function with $pdo as a parameter
@@ -150,4 +175,89 @@ function showProfile($pdo, $user)
         echo "<p>No profile information available yet.</p><br>";
     }
 }
+
+function fetchExercisesFromAPI($apiUrl, $apiKey) {
+    $options = [
+        'http' => [
+            'header' => [
+                "x-rapidapi-host: exercisedb.p.rapidapi.com",
+                "x-rapidapi-key: $apiKey"
+            ],
+            'method' => 'GET',
+        ],
+    ];
+
+    $context = stream_context_create($options);
+    $response = @file_get_contents($apiUrl, false, $context);
+
+    return $response ? json_decode($response, true) : [];
+}
+
+function categorizeExercises($exercises) {
+    $groupedExercises = ['machine' => [], 'non-machine' => []];
+
+    foreach ($exercises as $exercise) {
+        if (isset($exercise['target'], $exercise['equipment'])) {
+            $equipmentType = strtolower($exercise['equipment']);
+            if (in_array($equipmentType, ['machine', 'cable', 'smith machine'])) {
+                $groupedExercises['machine'][$exercise['target']][] = $exercise;
+            } else {
+                $groupedExercises['non-machine'][$exercise['target']][] = $exercise;
+            }
+        }
+    }
+
+    return $groupedExercises;
+}
+// User authentication
+function loginUser($pdo, $user, $pass) {
+    $stmt = $pdo->prepare("SELECT * FROM members WHERE user = :user");
+    $stmt->execute([':user' => $user]);
+    $result = $stmt->fetch();
+
+    echo ":User  " . $user . "\n";
+    echo "Password: " . $pass . "\n";
+
+    if ($result) {
+        echo "User  found: " . $result['user'] . "\n";
+        echo "Password: " . $result['pass'] . "\n";
+        echo "Input password: " . $pass . "\n";
+        if (password_verify($pass, $result['pass'])) {
+            echo "Password verified\n";
+            return true;
+        } else {
+            echo "Password not verified\n";
+            return false;
+        }
+    } else {
+        echo "User  not found\n";
+        return false;
+    }
+}
+
+
+// Message handling
+function insertMessage($pdo, $user, $view, $text) {
+    $stmt = $pdo->prepare("INSERT INTO messages (auth, recip, pm, time, message) VALUES (?, ?, 0, ?, ?)");
+    return $stmt->execute([$user, $view, time(), $text]);
+}
+
+function deleteMessage($pdo, $messageId, $user) {
+    $stmt = $pdo->prepare("DELETE FROM messages WHERE id=? AND auth=?");
+    return $stmt->execute([$messageId, $user]);
+}
+
+// Calorie tracker
+function addCalorieEntry($pdo, $user, $product_name, $calories) {
+    $stmt = $pdo->prepare("INSERT INTO food_products (user, product_name, calories, date) VALUES (?, ?, ?, NOW())");
+    return $stmt->execute([$user, $product_name, $calories]);
+}
+
+function getCalorieEntries($pdo, $user) {
+    $stmt = $pdo->prepare("SELECT product_name, calories FROM food_products WHERE user=?");
+    $stmt->execute([$user]);
+    return $stmt->fetchAll();
+}
+
+
 ?>

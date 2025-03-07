@@ -1,13 +1,20 @@
-
-
-
 <?php
 include_once "header.php";
 include_once "function.php";
 
-// Fetch daily entries
-$stmt = $pdo->prepare("SELECT date, SUM(total_calories) AS daily_total_calories FROM food_products GROUP BY date ORDER BY date DESC");
-$stmt->execute();
+// Start session if not started
+// session_start();
+
+// Ensure user is logged in
+if (!isset($_SESSION['user'])) {
+    die("Error: User not logged in.");
+}
+
+$user_id = $_SESSION['user'];
+
+// Fetch daily entries for the specific user
+$stmt = $pdo->prepare("SELECT date, SUM(total_calories) AS daily_total_calories FROM food_products WHERE user = ? GROUP BY date ORDER BY date DESC");
+$stmt->execute([$user_id]);
 $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
@@ -58,12 +65,18 @@ $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <th>Date</th>
                 <th>Daily Total Calories</th>
             </tr>
+            <?php if (empty($entries)): ?>
+            <tr>
+                <td colspan="2">No records found.</td>
+            </tr>
+            <?php else: ?>
             <?php foreach ($entries as $entry): ?>
             <tr>
                 <td><?php echo $entry['date']; ?></td>
                 <td><?php echo number_format($entry['daily_total_calories'], 2); ?> kcal</td>
             </tr>
             <?php endforeach; ?>
+            <?php endif; ?>
         </table>
     </div>
 
