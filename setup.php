@@ -13,8 +13,8 @@
     // Initialize $pdo in setup.php
     $host = 'localhost';
     $dbname = 'fitblitz';
-    $username = 'Admin';
-    $password = 'fitBlitz';
+    $username = 'your_username';
+    $password = 'Your_pass';
     $charset = 'utf8mb4';
 
     try {
