@@ -1,4 +1,5 @@
 <?php //calory_calc.php
+// session_start();
 include_once "header.php";
 include_once "function.php";
 require_once 'vendor/autoload.php'; // Composer autoloader for OpenAI and dotenv
@@ -13,7 +14,6 @@ $dotenv->load();
 // Retrieve OpenAI API key from .env file
 $openaiApiKey = $_ENV['OPENAI_API_KEY'];
 
-
 $factory = new Factory();
 
 $openai = $factory->make(['api_key' => $_ENV['OPENAI_API_KEY']]);
@@ -23,10 +23,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Ensure user is logged in
-if (!isset($_SESSION['user'])) {
-    die("User not logged in. Please log in to continue.");
-}
 
 // Retrieve user ID from the session
 $user = $_SESSION['user'];
@@ -36,9 +32,6 @@ $errorMessage = '';
 $fitnessAdvice = '';
 $foodData = null;
 
-
-
-// Handle deletion
 if (isset($_POST['delete'])) {
     $delete_id = $_POST['delete_id'];
     $stmt = $pdo->prepare("DELETE FROM food_products WHERE  user = ?");
@@ -67,15 +60,16 @@ if (isset($_POST['add_food'])) {
     $totalCalories = ($calories * $gramsTaken) / 100;
     $date = date('Y-m-d');
 
-    $stmt = $pdo->prepare("INSERT INTO food_products (user, product_name, calories, grams_taken, total_calories, date)
-                           VALUES (:user, :product_name, :calories, :grams_taken, :total_calories, :date)");
+    $stmt = $pdo->prepare("INSERT INTO food_products ( product_name, calories, grams_taken, total_calories, date,user)
+                           VALUES ( :product_name, :calories, :grams_taken, :total_calories, :date,:user)");
     $stmt->execute([
-        ':user' => $user,
+        
         ':product_name' => $productName,
         ':calories' => $calories,
         ':grams_taken' => $gramsTaken,
         ':total_calories' => $totalCalories,
-        ':date' => $date
+        ':date' => $date,
+        ':user' => $user
     ]);
     header("Location: calory_calc.php");
     exit();
@@ -86,6 +80,7 @@ $dateToday = date('Y-m-d');
 $stmt = $pdo->prepare("SELECT user, product_name, calories, grams_taken, total_calories FROM food_products WHERE date = :date AND user = :user");
 $stmt->execute([':date' => $dateToday, ':user' => $user]);
 $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 // Calculate daily total
 $dailyTotalCalories = 0;

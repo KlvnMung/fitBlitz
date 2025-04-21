@@ -11,13 +11,14 @@ function queryMysql($pdo, $query, $params = []) {
     try {
         $stmt = $pdo->prepare($query);
         $stmt->execute($params);
-        return $stmt; // Return PDOStatement
+        return $stmt;
     } catch (PDOException $e) {
         // Log or display error
         error_log("Database Error: " . $e->getMessage());
        
     }
 }
+
 
 // Define the destroySession function
 function destroySession() {
@@ -100,4 +101,89 @@ function showProfile($pdo, $user) {
         echo "<p>No profile information available yet.</p><br>";
     }
 }
+
+function fetchExercisesFromAPI($apiUrl, $apiKey) {
+    $options = [
+        'http' => [
+            'header' => [
+                "x-rapidapi-host: exercisedb.p.rapidapi.com",
+                "x-rapidapi-key: $apiKey"
+            ],
+            'method' => 'GET',
+        ],
+    ];
+
+    $context = stream_context_create($options);
+    $response = @file_get_contents($apiUrl, false, $context);
+
+    return $response ? json_decode($response, true) : [];
+}
+
+function categorizeExercises($exercises) {
+    $groupedExercises = ['machine' => [], 'non-machine' => []];
+
+    foreach ($exercises as $exercise) {
+        if (isset($exercise['target'], $exercise['equipment'])) {
+            $equipmentType = strtolower($exercise['equipment']);
+            if (in_array($equipmentType, ['machine', 'cable', 'smith machine'])) {
+                $groupedExercises['machine'][$exercise['target']][] = $exercise;
+            } else {
+                $groupedExercises['non-machine'][$exercise['target']][] = $exercise;
+            }
+        }
+    }
+
+    return $groupedExercises;
+}
+// User authentication
+function loginUser($pdo, $user, $pass) {
+    $stmt = $pdo->prepare("SELECT * FROM members WHERE user = :user");
+    $stmt->execute([':user' => $user]);
+    $result = $stmt->fetch();
+
+    echo ":User  " . $user . "\n";
+    echo "Password: " . $pass . "\n";
+
+    if ($result) {
+        echo "User  found: " . $result['user'] . "\n";
+        echo "Password: " . $result['pass'] . "\n";
+        echo "Input password: " . $pass . "\n";
+        if (password_verify($pass, $result['pass'])) {
+            echo "Password verified\n";
+            return true;
+        } else {
+            echo "Password not verified\n";
+            return false;
+        }
+    } else {
+        echo "User  not found\n";
+        return false;
+    }
+}
+
+
+// Message handling
+function insertMessage($pdo, $user, $view, $text) {
+    $stmt = $pdo->prepare("INSERT INTO messages (auth, recip, pm, time, message) VALUES (?, ?, 0, ?, ?)");
+    return $stmt->execute([$user, $view, time(), $text]);
+}
+
+function deleteMessage($pdo, $messageId, $user) {
+    $stmt = $pdo->prepare("DELETE FROM messages WHERE id=? AND auth=?");
+    return $stmt->execute([$messageId, $user]);
+}
+
+// Calorie tracker
+function addCalorieEntry($pdo, $user, $product_name, $calories) {
+    $stmt = $pdo->prepare("INSERT INTO food_products (user, product_name, calories, date) VALUES (?, ?, ?, NOW())");
+    return $stmt->execute([$user, $product_name, $calories]);
+}
+
+function getCalorieEntries($pdo, $user) {
+    $stmt = $pdo->prepare("SELECT product_name, calories FROM food_products WHERE user=?");
+    $stmt->execute([$user]);
+    return $stmt->fetchAll();
+}
+
+
 ?>
