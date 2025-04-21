@@ -1,4 +1,8 @@
 <?php
+require_once __DIR__.'/vendor/autoload.php'; // Autoload files using Composer autoload
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
 // information.php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -8,7 +12,7 @@ require_once 'header.php';
 if (!$loggedin) die("Please log in to access this page.");
 
 //  News API key from newsapi.org (free API key) 
-$newsApiKey = 'fc73954a9dd0430b90a0b925430dc3f5';
+$newsApiKey = $_ENV['NEWS_API_KEY'];
 
 // Function to fetch health articles
 function fetchHealthArticles($apiKey, $query = null) {
@@ -31,7 +35,7 @@ function fetchHealthArticles($apiKey, $query = null) {
         'http' => [
             'header' => [
                 'User-Agent: FitBlitz/1.0',
-
+ 
             ],
             'method' => 'GET',
             'ignore_errors' => true

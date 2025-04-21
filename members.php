@@ -3,6 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require_once "header.php";
+require_once "setup.php";
 
 // Check if user is logged in
 if (!isset($_SESSION['user'])) {

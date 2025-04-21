@@ -1,6 +1,6 @@
 <?php 
 session_start(); // Start the session
-
+require_once "setup.php";
 // Get the current page name
 $current_page = basename($_SERVER['PHP_SELF']); 
 

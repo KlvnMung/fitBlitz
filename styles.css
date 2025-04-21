@@ -901,7 +901,7 @@ p {
             cursor: pointer;
         }
         .search-container button:hover {
-            background: #45a049;
+            background: #ff4444;
         }
         .delete-btn {
             background: none;
@@ -913,29 +913,5 @@ p {
         .delete-btn:hover {
             color: #cc0000;
         }
-     /* Pill toggle styling */
-     .pill-toggle {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-  }
 
-  .pill {
-      background-color: #ff0000; /* Red background */
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      margin: 0 5px;
-      font-size: 16px;
-  }
-
-  .pill.active {
-      background-color: #b30000; /* Darker red for active state */
-  }
-
-  .pill:hover {
-      background-color: #cc0000; /* Lighter red on hover */
-  }
+/* Base alert styles */

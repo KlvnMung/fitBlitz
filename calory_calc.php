@@ -41,8 +41,8 @@ $foodData = null;
 // Handle deletion
 if (isset($_POST['delete'])) {
     $delete_id = $_POST['delete_id'];
-    $stmt = $pdo->prepare("DELETE FROM food_products WHERE id = ? AND user = ?");
-    $stmt->execute([$delete_id, $user]);
+    $stmt = $pdo->prepare("DELETE FROM food_products WHERE  user = ?");
+    $stmt->execute([ $user]);
     header("Location: calory_calc.php");
     exit();
 }
@@ -50,7 +50,7 @@ if (isset($_POST['delete'])) {
 // Handle search functionality
 if (isset($_GET['search'])) {
     $searchTerm = sanitizeString($_GET['search']);
-    $apiUrl = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=" . urlencode($searchTerm) . "&search_simple=1&action=process&json=1";
+    $apiUrl = $_ENV['OPEN_FOOD_FACTS_API_URL'] . "?search_terms=" . urlencode($searchTerm) . "&search_simple=1&action=process&json=1";
     $apiResponse = file_get_contents($apiUrl);
     $foodData = json_decode($apiResponse, true);
 
@@ -83,7 +83,7 @@ if (isset($_POST['add_food'])) {
 
 // Fetch daily entries
 $dateToday = date('Y-m-d');
-$stmt = $pdo->prepare("SELECT id, product_name, calories, grams_taken, total_calories FROM food_products WHERE date = :date AND user = :user");
+$stmt = $pdo->prepare("SELECT user, product_name, calories, grams_taken, total_calories FROM food_products WHERE date = :date AND user = :user");
 $stmt->execute([':date' => $dateToday, ':user' => $user]);
 $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -452,7 +452,7 @@ if (isset($_POST['calculate_bmr'])) {
                 <td><?php echo htmlspecialchars(number_format($entry['total_calories'], 2)); ?></td>
                 <td>
                     <form method="post" style="display: inline;">
-                        <input type="hidden" name="delete_id" value="<?php echo $entry['id']; ?>">
+                        <input type="hidden" name="delete_id" value="<?php echo $entry['user']; ?>">
                         <button type="submit" name="delete" class="delete-btn">
                             <i class="fas fa-trash-alt"></i>
                         </button>
